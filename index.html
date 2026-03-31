@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Alfadz Muslim</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0E6251">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="assets/img/logo.png">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW Registered'))
+                    .catch(err => console.log('SW Error', err));
+            });
+        }
+    </script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0E6251',
+                        secondary: '#F0FDFA',
+                        surface: '#ffffff',
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        serif: ['Amiri', 'serif']
+                    },
+                    backgroundImage: {
+                        'pattern': "url(\"data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'%3E%3Ccircle cx='3' cy='3' r='3'/%3E%3Ccircle cx='13' cy='13' r='3'/%3E%3C/g%3E%3C/svg%3E\")",
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #FAFAFA;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s ease-out;
+        }
+
+        .splash-logo {
+            width: 160px;
+            height: 160px;
+            margin-bottom: 24px;
+            object-fit: contain;
+        }
+
+        .splash-text {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0E6251;
+            letter-spacing: -0.5px;
+        }
+
+        .splash-loading {
+            margin-top: 40px;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0E6251;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .slide-text-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease-out;
+        }
+
+        .slide-text-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        .slide-text-exit {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.4s ease-in;
+        }
+
+        .menu-item:active {
+            transform: scale(0.95);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 5.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(14, 98, 81, 0.95);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+            
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @font-face {
+            font-family: 'LPMQ Isep Misbah';
+            src: url('https://raw.githubusercontent.com/sutanlab/quran/master/fonts/lpmq.woff2') format('woff2'),
+                 url('https://cdn.jsdelivr.net/gh/sutanlab/quran@master/fonts/lpmq.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        
+        .font-quran, .font-mushaf {
+            font-family: 'LPMQ Isep Misbah', 'Amiri', serif;
+            line-height: 2.5;
+        }
+    </style>
+</head>
+
+<body class="bg-[#F0F2F5] flex justify-center text-gray-800 antialiased selection:bg-primary/20">
+
+    <!-- Splash Screen -->
+    <div id="splash-screen">
+        <img src="assets/img/logo.png" alt="Alfadz Muslim Logo" class="splash-logo">
+        <h2 class="splash-text">Alfadz Muslim</h2>
+        <div class="splash-loading"></div>
+    </div>
+
+    <!-- Mobile Wrapper -->
+    <div id="app-container" class="w-full min-h-screen bg-white  relative overflow-x-hidden border-x border-gray-100 flex-col flex mx-auto">
+    
+        <!-- Main Content Area -->
+        <div id="app-content" class="transition-all duration-300 flex-1 relative">
+            
+            <!-- Home Header -->
+            <div class="px-6 pt-6 pb-4 flex justify-between items-center bg-white sticky top-0 z-[60]  border-b border-gray-50">
+                <div>
+                    <h1 class="text-xl font-extrabold text-primary tracking-tight">Alfadz Muslim</h1>
+                    <p class="text-xs text-gray-400 font-medium mt-0.5" id="fullDate">Memuat...</p>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-secondary border border-primary/10 flex items-center justify-center text-primary ">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                </div>
+            </div>
+
+            <!-- Home Content -->
+            <div class="px-5 mt-6 pb-32 space-y-8">
+                <!-- Slider -->
+                <div class="relative w-full rounded-2xl   overflow-hidden bg-gradient-to-tr from-[#0E6251] to-[#25A285] h-52">
+                    <div class="absolute inset-0 bg-pattern opacity-20"></div>
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-white opacity-5 rounded-full blur-2xl"></div>
+                    <div class="relative p-6 h-full flex flex-col justify-center text-center">
+                        <div id="slide-content" class="slide-text-active flex-1 flex flex-col justify-center items-center w-full">
+                            <p class="font-serif text-lg md:text-xl leading-relaxed italic text-white line-clamp-4" id="slider-text">
+                                "Maka sesungguhnya bersama kesulitan ada kemudahan."
+                            </p>
+                            <p class="text-[10px] font-bold opacity-80 text-white mt-3 uppercase tracking-wide" id="slider-source">QS. Al-Insyirah: 5</p>
+                        </div>
+                        <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5" id="slider-dots">
+                            <div class="w-1.5 h-1.5 rounded-full bg-white transition-all"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-white/40 transition-all"></div>
+                            <div class="w-1.5 h-1.5 rounded-full bg-white/40 transition-all"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Icons -->
+                <div>
+                    <h3 class="font-bold text-gray-800 mb-4 px-1 text-sm flex items-center gap-2">
+                        <span class="w-1 h-4 bg-primary rounded-full"></span>
+                        Menu Utama
+                    </h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <a href="quran" class="flex items-center p-3 rounded-2xl border border-gray-100 bg-white  hover: transition-shadow gap-3 group">
+                            <div class="w-12 h-12 flex-shrink-0 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                                <i data-lucide="book-open" class="w-6 h-6 stroke-[1.5]"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="block text-xs font-bold text-gray-800 truncate">Al-Quran</span>
+                                <span class="block text-[10px] text-gray-400 mt-0.5 leading-tight truncate">30 Juz Lengkap</span>
+                            </div>
+                        </a>
+
+                        <a href="sholat" class="flex items-center p-3 rounded-2xl border border-gray-100 bg-white  hover: transition-shadow gap-3 group">
+                            <div class="w-12 h-12 flex-shrink-0 bg-sky-50 rounded-xl flex items-center justify-center text-sky-600 group-hover:bg-sky-500 group-hover:text-white transition-colors">
+                                <i data-lucide="compass" class="w-6 h-6 stroke-[1.5]"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="block text-xs font-bold text-gray-800 truncate">Sholat</span>
+                                <span class="block text-[10px] text-gray-400 mt-0.5 leading-tight truncate">Jadwal & Panduan</span>
+                            </div>
+                        </a>
+
+                        <a href="wudhu" class="flex items-center p-3 rounded-2xl border border-gray-100 bg-white  hover: transition-shadow gap-3 group">
+                            <div class="w-12 h-12 flex-shrink-0 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                                <i data-lucide="droplets" class="w-6 h-6 stroke-[1.5]"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="block text-xs font-bold text-gray-800 truncate">Wudhu</span>
+                                <span class="block text-[10px] text-gray-400 mt-0.5 leading-tight truncate">Panduan & Bacaan</span>
+                            </div>
+                        </a>
+
+                        <a href="doa" class="flex items-center p-3 rounded-2xl border border-gray-100 bg-white  hover: transition-shadow gap-3 group">
+                            <div class="w-12 h-12 flex-shrink-0 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 group-hover:bg-purple-500 group-hover:text-white transition-colors">
+                                <i data-lucide="sparkles" class="w-6 h-6 stroke-[1.5]"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="block text-xs font-bold text-gray-800 truncate">Doa & Qunut</span>
+                                <span class="block text-[10px] text-gray-400 mt-0.5 leading-tight truncate">Kumpulan Doa</span>
+                            </div>
+                        </a>
+
+                        <a href="sholawat" class="flex items-center p-3 rounded-2xl border border-gray-100 bg-white  hover: transition-shadow gap-3 group">
+                            <div class="w-12 h-12 flex-shrink-0 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 group-hover:bg-rose-500 group-hover:text-white transition-colors">
+                                <i data-lucide="star" class="w-6 h-6 stroke-[1.5]"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="block text-xs font-bold text-gray-800 truncate">Sholawat</span>
+                                <span class="block text-[10px] text-gray-400 mt-0.5 leading-tight truncate">Pujian atas Nabi</span>
+                            </div>
+                        </a>
+
+                        <a href="tahlil" class="flex items-center p-3 rounded-2xl border border-gray-100 bg-white  hover: transition-shadow gap-3 group">
+                            <div class="w-12 h-12 flex-shrink-0 bg-teal-50 rounded-xl flex items-center justify-center text-teal-600 group-hover:bg-teal-500 group-hover:text-white transition-colors">
+                                <i data-lucide="book-copy" class="w-6 h-6 stroke-[1.5]"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="block text-xs font-bold text-gray-800 truncate">Tahlil</span>
+                                <span class="block text-[10px] text-gray-400 mt-0.5 leading-tight truncate">Yasin & Tahlil</span>
+                            </div>
+                        </a>
+
+                        <a href="keislaman" class="flex items-center p-3 rounded-2xl border border-gray-100 bg-white  hover: transition-shadow gap-3 group">
+                            <div class="w-12 h-12 flex-shrink-0 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                                <i data-lucide="graduation-cap" class="w-6 h-6 stroke-[1.5]"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="block text-xs font-bold text-gray-800 truncate">Wawasan Islam</span>
+                                <span class="block text-[10px] text-gray-400 mt-0.5 leading-tight truncate">Rukun & Sejarah</span>
+                            </div>
+                        </a>
+
+                        <a href="puasa" class="flex items-center p-3 rounded-2xl border border-gray-100 bg-white  hover: transition-shadow gap-3 group">
+                            <div class="w-12 h-12 flex-shrink-0 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                                <i data-lucide="moon" class="w-6 h-6 stroke-[1.5]"></i>
+                            </div>
+                            <div class="overflow-hidden">
+                                <span class="block text-xs font-bold text-gray-800 truncate">Puasa</span>
+                                <span class="block text-[10px] text-gray-400 mt-0.5 leading-tight truncate">Ramadhan & Sunnah</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- /#app-content -->
+
+        <!-- Bottom Navigation -->
+        <div class="fixed bottom-0 left-0 w-full glass-nav flex justify-around items-end z-50 px-2 py-2">
+            <a href="./" class="flex flex-col items-center gap-1 min-w-[3.5rem] group pb-1">
+                <i data-lucide="home" class="w-6 h-6 text-primary stroke-[2.5] fill-primary/10 transition-colors"></i>
+                <span class="text-[10px] font-bold text-primary transition-colors">Home</span>
+            </a>
+
+            <a href="sholat" class="flex flex-col items-center gap-1 min-w-[3.5rem] group pb-1">
+                <i data-lucide="compass" class="w-6 h-6 text-gray-400 group-hover:text-primary transition-colors stroke-[2]"></i>
+                <span class="text-[10px] font-medium text-gray-400 group-hover:text-primary transition-colors">Sholat</span>
+            </a>
+
+            <div class="relative -top-5 group cursor-pointer group-center">
+                <a href="quran" class="flex flex-col items-center">
+                    <div class="w-14 h-14 bg-primary rounded-full flex items-center justify-center   border-4 border-white transition-transform group-active:scale-95">
+                        <i data-lucide="book-open" class="w-6 h-6 text-white stroke-[2.5]"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-gray-600 mt-2 group-hover:text-primary transition-colors text-center leading-tight">Baca<br>Quran</span>
+                </a>
+            </div>
+
+            <a href="tahlil" class="flex flex-col items-center gap-1 min-w-[3.5rem] group pb-1">
+                <i data-lucide="book-copy" class="w-6 h-6 text-gray-400 group-hover:text-primary transition-colors stroke-[2]"></i>
+                <span class="text-[10px] font-medium text-gray-400 group-hover:text-primary transition-colors">Tahlil</span>
+            </a>
+
+            <a href="bookmark" class="flex flex-col items-center gap-1 min-w-[3.5rem] group pb-1">
+                <i data-lucide="bookmark" class="w-6 h-6 text-gray-400 group-hover:text-primary transition-colors stroke-[2]"></i>
+                <span class="text-[10px] font-medium text-gray-400 group-hover:text-primary transition-colors">Tersimpan</span>
+            </a>
+        </div>
+    </div> <!-- /#app-container -->
+
+    <script>
+        if(typeof lucide !== 'undefined') lucide.createIcons();
+
+        // Date Logic
+        window.initHomeScripts = () => {
+            const dateEl = document.getElementById('fullDate');
+            if(dateEl) {
+                const dateOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+                dateEl.textContent = new Date().toLocaleDateString('id-ID', dateOptions);
+            }
+
+            // Slider Logic
+            const slides = [
+                { text: "Maka sesungguhnya bersama kesulitan ada kemudahan.", source: "QS. Al-Insyirah: 5" },
+                { text: "Bacalah Kitab (Al-Qur'an) dan laksanakanlah salat. Sesungguhnya salat itu mencegah dari (perbuatan) keji dan mungkar.", source: "QS. Al-Ankabut: 45" },
+                { text: "Barangsiapa yang menunjuki kepada kebaikan maka dia akan mendapatkan pahala seperti orang yang mengerjakannya.", source: "HR. Muslim" },
+                { text: "Sebaik-baik manusia adalah yang paling bermanfaat bagi manusia.", source: "HR. Ahmad" }
+            ];
+
+            let currentSlide = 0;
+            const textEl = document.getElementById('slider-text');
+            const sourceEl = document.getElementById('slider-source');
+            const contentEl = document.getElementById('slide-content');
+            const dotsEl = document.getElementById('slider-dots');
+            
+            if(!textEl || !dotsEl) return;
+            
+            const dots = dotsEl.children;
+
+            if (window.homeSliderInterval) clearInterval(window.homeSliderInterval);
+            window.homeSliderInterval = setInterval(() => {
+                const newTextEl = document.getElementById('slider-text');
+                if(!newTextEl) {
+                    clearInterval(window.homeSliderInterval);
+                    return;
+                }
+                
+                contentEl.classList.remove('slide-text-active');
+                contentEl.classList.add('slide-text-exit');
+
+                setTimeout(() => {
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    textEl.textContent = `"${slides[currentSlide].text}"`;
+                    sourceEl.textContent = slides[currentSlide].source;
+
+                    for (let i = 0; i < dots.length; i++) {
+                        if (i === currentSlide) {
+                            dots[i].className = "w-2 h-1 rounded-full bg-white transition-all duration-500";
+                        } else {
+                            dots[i].className = "w-1.5 h-1.5 rounded-full bg-white/40 transition-all duration-500";
+                        }
+                    }
+
+                    contentEl.classList.remove('slide-text-exit');
+                    contentEl.classList.add('slide-text-enter');
+
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            contentEl.classList.remove('slide-text-enter');
+                            contentEl.classList.add('slide-text-active');
+                        });
+                    });
+                }, 500);
+            }, 6000);
+        };
+        
+        initHomeScripts();
+
+        // Splash screen removal
+        window.addEventListener('load', () => {
+            const splash = document.getElementById('splash-screen');
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                splash.style.pointerEvents = 'none';
+                setTimeout(() => splash.remove(), 500);
+            }, 1500);
+        });
+    </script>
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
