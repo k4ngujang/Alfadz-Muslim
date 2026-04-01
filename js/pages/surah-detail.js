@@ -739,7 +739,7 @@ export const init = () => {
         }
         window.togglePageBookmark = function(pageIdx, firstVerse, lastVerse) {
             let bookmarks = JSON.parse(localStorage.getItem('quranBookmarks') || '[]'); const key = `${currentSurah.nomor}-page-${pageIdx}`; const idx = bookmarks.findIndex(b => b.bookmarkKey === key);
-            const representativeVerse = currentSurah.ayat[firstVerse - 1]; const arabicText = representativeVerse ? representativeVerse.teksArab : ";
+            const representativeVerse = currentSurah.ayat[firstVerse - 1]; const arabicText = representativeVerse ? representativeVerse.teksArab : "";
             if (idx !== -1) { bookmarks.splice(idx, 1); showNotification("Halaman dihapus dari simpanan"); } else { bookmarks.push({ bookmarkKey: key, surahNumber: currentSurah.nomor, surahName: currentSurah.namaLatin, pageIndex: pageIdx, pageNumber: pageIdx + 1, firstVerseNumber: firstVerse, lastVerseNumber: lastVerse, arabicText: arabicText, type: 'page' }); showNotification("Halaman berhasil disimpan"); }
             localStorage.setItem('quranBookmarks', JSON.stringify(bookmarks)); renderMushafMode(); 
         }
